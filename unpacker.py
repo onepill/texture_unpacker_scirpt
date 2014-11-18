@@ -72,9 +72,19 @@ if __name__ == '__main__':
         print("You must pass filename as the first parameter!")
         exit(1)
     filename = sys.argv[1]
-    plist_filename = filename + '.plist'
-    png_filename = filename + '.png'
-    if os.path.exists(plist_filename) and os.path.exists(png_filename):
-        gen_png_from_plist(plist_filename, png_filename)
+    ext = '.plist'
+    if len(sys.argv) < 3:
+        print("No data format passed, assuming .plist")
+    elif sys.argv[2] == 'plist':
+        print(".plist data format passed")
+    elif sys.argv[2] == 'json':
+        ext = '.json'
+        print(".json data format passed")
     else:
-        print("Make sure you have both plist and png files in the same directory")
+        print("Wrong data format passed '" + sys.argv[2] + "', assuming .plist")
+    data_filename = filename + ext
+    png_filename = filename + '.png'
+    if os.path.exists(data_filename) and os.path.exists(png_filename):
+        gen_png_from_plist(data_filename, png_filename)
+    else:
+        print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
