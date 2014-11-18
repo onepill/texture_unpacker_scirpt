@@ -20,49 +20,65 @@ def tree_to_dict(tree):
     return d
 
 
-def gen_png_from_plist(plist_filename, png_filename):
-    file_path = plist_filename.replace('.plist', '')
-    big_image = Image.open(png_filename)
-    root = ElementTree.fromstring(open(plist_filename, 'r').read())
-    plist_dict = tree_to_dict(root[0])
-    to_list = lambda x: x.replace('{', '').replace('}', '').split(',')
-    for k, v in plist_dict['frames'].items():
-        rectlist = to_list(v['frame'])
-        width = int(rectlist[3] if v['rotated'] else rectlist[2])
-        height = int(rectlist[2] if v['rotated'] else rectlist[3])
-        box = (
-            int(rectlist[0]),
-            int(rectlist[1]),
-            int(rectlist[0]) + width,
-            int(rectlist[1]) + height,
-        )
-        # sizelist = [ int(x) for x in to_list(v['sourceSize'])]
-        sizelist = [width, height]
+def frames_from_data(filename, ext):
+    data_filename = filename + ext
+    if ext == '.plist':
+        root = ElementTree.fromstring(open(data_filename, 'r').read())
+        plist_dict = tree_to_dict(root[0])
+        to_list = lambda x: x.replace('{', '').replace('}', '').split(',')
+        frames = plist_dict['frames'].items()
+        for k, v in frames:
+            frame = v
+            rectlist = to_list(frame['frame'])
+            width = int(rectlist[3] if frame['rotated'] else rectlist[2])
+            height = int(rectlist[2] if frame['rotated'] else rectlist[3])
+            frame['box'] = (
+                int(rectlist[0]),
+                int(rectlist[1]),
+                int(rectlist[0]) + width,
+                int(rectlist[1]) + height,
+            )
+            real_rectlist = to_list(frame['sourceSize'])
+            real_width = int(real_rectlist[1] if frame['rotated'] else real_rectlist[0])
+            real_height = int(real_rectlist[0] if frame['rotated'] else real_rectlist[1])
+            real_sizelist = [real_width, real_height]
+            frame['real_sizelist'] = real_sizelist
+            offsetlist = to_list(frame['offset'])
+            offset_x = int(offsetlist[1] if frame['rotated'] else offsetlist[0])
+            offset_y = int(offsetlist[0] if frame['rotated'] else offsetlist[1])
+            frame['result_box'] = (
+                int((real_sizelist[0] - width) / 2 + offset_x),
+                int((real_sizelist[1] - height) / 2 + offset_y),
+                int((real_sizelist[0] + width) / 2 + offset_x),
+                int((real_sizelist[1] + height) / 2 + offset_y)
+            )
+        return frames
+
+    elif ext == '.json':
+        # TODO: implement json file parsing
+        print("TODO: implement json file parsing")
+        exit(1)
+    else:
+        print("Wrong data format on parsing: '" + ext + "'!")
+        exit(1)
+
+
+def gen_png_from_data(filename, ext):
+    big_image = Image.open(filename + ".png")
+    frames = frames_from_data(filename, ext)
+    for k, v in frames:
+        frame = v
+        box = frame['box']
         rect_on_big = big_image.crop(box)
-
-        real_rectlist = to_list(v['sourceSize'])
-        real_width = int(real_rectlist[1] if v['rotated'] else real_rectlist[0])
-        real_height = int(real_rectlist[0] if v['rotated'] else real_rectlist[1])
-        real_sizelist = [real_width, real_height]
-
-        offsetlist = to_list(v['offset'])
-        offset_x = int(offsetlist[1] if v['rotated'] else offsetlist[0])
-        offset_y = int(offsetlist[0] if v['rotated'] else offsetlist[1])
-
+        real_sizelist = frame['real_sizelist']
         result_image = Image.new('RGBA', real_sizelist, (0, 0, 0, 0))
-        result_box = (
-            int((real_sizelist[0] - width) / 2 + offset_x),
-            int((real_sizelist[1] - height) / 2 + offset_y),
-            int((real_sizelist[0] + width) / 2 + offset_x),
-            int((real_sizelist[1] + height) / 2 + offset_y)
-        )
-
+        result_box = frame['result_box']
         result_image.paste(rect_on_big, result_box, mask=0)
-        if v['rotated']:
+        if frame['rotated']:
             result_image = result_image.rotate(90)
-        if not os.path.isdir(file_path):
-            os.mkdir(file_path)
-        outfile = (file_path + '/' + k).replace('gift_', '')
+        if not os.path.isdir(filename):
+            os.mkdir(filename)
+        outfile = (filename + '/' + k).replace('gift_', '')
         print(outfile, "generated")
         result_image.save(outfile)
 
@@ -81,10 +97,11 @@ if __name__ == '__main__':
         ext = '.json'
         print(".json data format passed")
     else:
-        print("Wrong data format passed '" + sys.argv[2] + "', assuming .plist")
+        print("Wrong data format passed '" + sys.argv[2] + "'!")
+        exit(1)
     data_filename = filename + ext
     png_filename = filename + '.png'
     if os.path.exists(data_filename) and os.path.exists(png_filename):
-        gen_png_from_plist(data_filename, png_filename)
+        gen_png_from_data(filename, ext)
     else:
         print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
