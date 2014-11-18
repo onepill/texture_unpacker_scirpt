@@ -1,5 +1,6 @@
 #! /usr/lical/bin/python
-import os,Image,sys
+import os,sys
+from PIL import Image
 from xml.etree import ElementTree
 
 def tree_to_dict(tree):
@@ -47,10 +48,10 @@ def gen_png_from_plist(plist_filename, png_filename):
 
         result_image = Image.new('RGBA', real_sizelist, (0,0,0,0))
         result_box=(
-            ( real_sizelist[0] - width )/2 + offset_x,
-            ( real_sizelist[1] - height )/2 + offset_y,
-            ( real_sizelist[0] + width )/2 + offset_x,
-            ( real_sizelist[1] + height )/2 + offset_y
+            int(( real_sizelist[0] - width )/2 + offset_x),
+            int(( real_sizelist[1] - height )/2 + offset_y),
+            int(( real_sizelist[0] + width )/2 + offset_x),
+            int(( real_sizelist[1] + height )/2 + offset_y)
             )
         
         result_image.paste(rect_on_big, result_box, mask=0)
@@ -59,7 +60,7 @@ def gen_png_from_plist(plist_filename, png_filename):
         if not os.path.isdir(file_path):
             os.mkdir(file_path)
         outfile = (file_path+'/' + k).replace('gift_', '')
-        print outfile, "generated"
+        print (outfile, "generated")
         result_image.save(outfile)
 
 if __name__ == '__main__':
@@ -69,4 +70,4 @@ if __name__ == '__main__':
     if (os.path.exists(plist_filename) and os.path.exists(png_filename)):
         gen_png_from_plist( plist_filename, png_filename )
     else:
-        print "make sure you have boith plist and png files in the same directory"
+        print("Make sure you have both plist and png files in the same directory")

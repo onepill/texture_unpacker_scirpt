@@ -1,17 +1,18 @@
-texuture unpacker
+TextureUnpacker
 ========================
 
 # Overview
-this script use to unpack png files in the sprite(incluing a .plist file and a .png file) packed by [TexturePacker](http://www.codeandweb.com/texturepacker/)
+Use this script to unpack **.png** sprites from the sprite atlas (providing a *.plist* file and a *.png* file) packed by [TexturePacker](http://www.codeandweb.com/texturepacker/).
 
 # Requirements
   - [Python](http://www.python.org)
-  - [PIL](http://www.pythonware.com/products/pil/)
+  - [Pillow (PIL fork)](https://github.com/python-pillow/Pillow) 
 
 # Usage
 
-for example, we have a pair of sprite files named: Sprite.plist and Sprite.png packed by [TexturePacker](http://www.codeandweb.com/texturepacker/). just run the follwing command in the folder containg these files
+For example, we have a pair of sprite files named: *Sprite.plist* and *Sprite.png* packed by [TexturePacker](http://www.codeandweb.com/texturepacker/).
+Just run the following command in the folder congaing these files:
 	
 	python unpacker.py Sprite
 
-and the script will generate a folder named Sprite containing all the small png files.
+and the script will generate a folder named **Sprite** containing all the small png files.
