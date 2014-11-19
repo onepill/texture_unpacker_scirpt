@@ -3,6 +3,7 @@ import os
 import sys
 from PIL import Image
 from xml.etree import ElementTree
+import json
 
 
 def tree_to_dict(tree):
@@ -36,7 +37,7 @@ def frames_from_data(filename, ext):
                 int(rectlist[0]),
                 int(rectlist[1]),
                 int(rectlist[0]) + width,
-                int(rectlist[1]) + height,
+                int(rectlist[1]) + height
             )
             real_rectlist = to_list(frame['sourceSize'])
             real_width = int(real_rectlist[1] if frame['rotated'] else real_rectlist[0])
@@ -55,9 +56,38 @@ def frames_from_data(filename, ext):
         return frames
 
     elif ext == '.json':
-        # TODO: implement json file parsing
-        print("TODO: implement json file parsing")
-        exit(1)
+        json_data = open(data_filename)
+        data = json.load(json_data)
+        frames = {}
+        for f in data['frames']:
+            x = int(f["frame"]["x"])
+            y = int(f["frame"]["y"])
+            w = int(f["frame"]["h"] if f['rotated'] else f["frame"]["w"])
+            h = int(f["frame"]["w"] if f['rotated'] else f["frame"]["h"])
+            real_w = int(f["sourceSize"]["h"] if f['rotated'] else f["sourceSize"]["w"])
+            real_h = int(f["sourceSize"]["w"] if f['rotated'] else f["sourceSize"]["h"])
+            d = {
+                'box': (
+                    x,
+                    y,
+                    x + w,
+                    y + h
+                ),
+                'real_sizelist': [
+                    real_w,
+                    real_h
+                ],
+                'result_box': (
+                    int((real_w - w) / 2),
+                    int((real_h - h) / 2),
+                    int((real_w + w) / 2),
+                    int((real_h + h) / 2)
+                ),
+                'rotated': f['rotated']
+            }
+            frames[f["filename"]] = d
+        json_data.close()
+        return frames.items()
     else:
         print("Wrong data format on parsing: '" + ext + "'!")
         exit(1)
