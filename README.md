@@ -10,7 +10,7 @@ Use this script to unpack **.png** sprites from the sprite atlas (providing a **
 
 # Usage
 	
-	python unpacker.py filename [format]
+	$ python unpacker.py <filename> [<format>]
 	
 ## filename
 
