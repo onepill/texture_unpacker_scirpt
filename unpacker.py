@@ -47,12 +47,21 @@ def frames_from_data(filename, ext):
             offsetlist = to_list(frame['offset'])
             offset_x = int(offsetlist[1] if frame['rotated'] else offsetlist[0])
             offset_y = int(offsetlist[0] if frame['rotated'] else offsetlist[1])
-            frame['result_box'] = (
-                int((real_sizelist[0] - width) / 2 + offset_x),
-                int((real_sizelist[1] - height) / 2 + offset_y),
-                int((real_sizelist[0] + width) / 2 + offset_x),
-                int((real_sizelist[1] + height) / 2 + offset_y)
-            )
+
+            if frame['rotated']:
+                frame['result_box'] = (
+                    int((real_sizelist[0] - width) / 2 + offset_x),
+                    int((real_sizelist[1] - height) / 2 + offset_y),
+                    int((real_sizelist[0] + width) / 2 + offset_x),
+                    int((real_sizelist[1] + height) / 2 + offset_y)
+                )
+            else:
+                frame['result_box'] = (
+                    int((real_sizelist[0] - width) / 2 + offset_x),
+                    int((real_sizelist[1] - height) / 2 - offset_y),
+                    int((real_sizelist[0] + width) / 2 + offset_x),
+                    int((real_sizelist[1] + height) / 2 - offset_y)
+                )
         return frames
 
     elif ext == '.json':
@@ -105,7 +114,7 @@ def gen_png_from_data(filename, ext):
         result_box = frame['result_box']
         result_image.paste(rect_on_big, result_box, mask=0)
         if frame['rotated']:
-            result_image = result_image.rotate(90)
+            result_image = result_image.transpose(Image.ROTATE_90)
         if not os.path.isdir(filename):
             os.mkdir(filename)
         outfile = (filename + '/' + k).replace('gift_', '')
