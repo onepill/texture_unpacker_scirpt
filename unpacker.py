@@ -16,6 +16,8 @@ def tree_to_dict(tree):
                 d[item.text] = True
             elif tree[index + 1].tag == 'false':
                 d[item.text] = False
+            elif tree[index + 1].tag == 'integer':
+                d[item.text] = int(tree[index + 1].text);
             elif tree[index + 1].tag == 'dict':
                 d[item.text] = tree_to_dict(tree[index + 1])
     return d
@@ -30,6 +32,12 @@ def frames_from_data(filename, ext):
         frames = plist_dict['frames'].items()
         for k, v in frames:
             frame = v
+            if(plist_dict["metadata"]["format"] == 3):
+                frame['frame'] = frame['textureRect']
+                frame['rotated'] = frame['textureRotated']
+                frame['sourceSize'] = frame['spriteSourceSize']
+                frame['offset'] = frame['spriteOffset']
+
             rectlist = to_list(frame['frame'])
             width = int(rectlist[3] if frame['rotated'] else rectlist[2])
             height = int(rectlist[2] if frame['rotated'] else rectlist[3])
@@ -63,7 +71,7 @@ def frames_from_data(filename, ext):
                     int((real_sizelist[1] + height) / 2 - offset_y)
                 )
         return frames
-
+        
     elif ext == '.json':
         json_data = open(data_filename)
         data = json.load(json_data)
