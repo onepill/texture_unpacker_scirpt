@@ -16,6 +16,8 @@ def tree_to_dict(tree):
                 d[item.text] = True
             elif tree[index + 1].tag == 'false':
                 d[item.text] = False
+            elif tree[index + 1].tag == 'integer':
+                d[item.text] = int(tree[index + 1].text);
             elif tree[index + 1].tag == 'dict':
                 d[item.text] = tree_to_dict(tree[index + 1])
     return d
@@ -27,9 +29,16 @@ def frames_from_data(filename, ext):
         root = ElementTree.fromstring(open(data_filename, 'r').read())
         plist_dict = tree_to_dict(root[0])
         to_list = lambda x: x.replace('{', '').replace('}', '').split(',')
+
         frames = plist_dict['frames'].items()
         for k, v in frames:
             frame = v
+            if(plist_dict["metadata"]["format"] == 3):
+                frame['frame'] = frame['textureRect']
+                frame['rotated'] = frame['textureRotated']
+                frame['sourceSize'] = frame['spriteSourceSize']
+                frame['offset'] = frame['spriteOffset']
+
             rectlist = to_list(frame['frame'])
             width = int(rectlist[3] if frame['rotated'] else rectlist[2])
             height = int(rectlist[2] if frame['rotated'] else rectlist[3])
@@ -63,7 +72,6 @@ def frames_from_data(filename, ext):
                     int((real_sizelist[1] + height) / 2 - offset_y)
                 )
         return frames
-
     elif ext == '.json':
         json_data = open(data_filename)
         data = json.load(json_data)
@@ -141,6 +149,7 @@ if __name__ == '__main__':
     data_filename = filename + ext
     png_filename = filename + '.png'
     if os.path.exists(data_filename) and os.path.exists(png_filename):
+        print(data_filename,png_filename);
         gen_png_from_data(filename, ext)
     else:
         print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
