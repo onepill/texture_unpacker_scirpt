@@ -1,4 +1,4 @@
-#! /usr/lical/bin/python
+#!/usr/bin/env python
 import os
 import sys
 from PIL import Image
