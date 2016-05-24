@@ -71,7 +71,7 @@ def frames_from_data(filename, ext):
                     int((real_sizelist[1] + height) / 2 - offset_y)
                 )
         return frames
-        
+
     elif ext == '.json':
         json_data = open(data_filename)
         data = json.load(json_data)
@@ -126,6 +126,8 @@ def gen_png_from_data(filename, ext):
         if not os.path.isdir(filename):
             os.mkdir(filename)
         outfile = (filename + '/' + k).replace('gift_', '')
+        if not outfile.endswith('.png'):
+            outfile += '.png'
         print(outfile, "generated")
         result_image.save(outfile)
 
