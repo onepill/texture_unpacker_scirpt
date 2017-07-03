@@ -39,36 +39,36 @@ def frames_from_data(filename, ext):
                 frame['offset'] = frame['spriteOffset']
 
             rectlist = to_list(frame['frame'])
-            width = int(rectlist[3] if frame['rotated'] else rectlist[2])
-            height = int(rectlist[2] if frame['rotated'] else rectlist[3])
+            width = int(float(rectlist[3] if frame['rotated'] else rectlist[2]))
+            height = int(float(rectlist[2] if frame['rotated'] else rectlist[3]))
             frame['box'] = (
-                int(rectlist[0]),
-                int(rectlist[1]),
-                int(rectlist[0]) + width,
-                int(rectlist[1]) + height
+                int(float(rectlist[0])),
+                int(float(rectlist[1])),
+                int(float(rectlist[0])) + width,
+                int(float(rectlist[1])) + height
             )
             real_rectlist = to_list(frame['sourceSize'])
-            real_width = int(real_rectlist[1] if frame['rotated'] else real_rectlist[0])
-            real_height = int(real_rectlist[0] if frame['rotated'] else real_rectlist[1])
+            real_width = int(float(real_rectlist[1] if frame['rotated'] else real_rectlist[0]))
+            real_height = int(float(real_rectlist[0] if frame['rotated'] else real_rectlist[1]))
             real_sizelist = [real_width, real_height]
             frame['real_sizelist'] = real_sizelist
             offsetlist = to_list(frame['offset'])
-            offset_x = int(offsetlist[1] if frame['rotated'] else offsetlist[0])
-            offset_y = int(offsetlist[0] if frame['rotated'] else offsetlist[1])
+            offset_x = int(float(offsetlist[1] if frame['rotated'] else offsetlist[0]))
+            offset_y = int(float(offsetlist[0] if frame['rotated'] else offsetlist[1]))
 
             if frame['rotated']:
                 frame['result_box'] = (
-                    int((real_sizelist[0] - width) / 2 + offset_x),
-                    int((real_sizelist[1] - height) / 2 + offset_y),
-                    int((real_sizelist[0] + width) / 2 + offset_x),
-                    int((real_sizelist[1] + height) / 2 + offset_y)
+                    int(float((real_sizelist[0] - width) / 2 + offset_x)),
+                    int(float((real_sizelist[1] - height) / 2 + offset_y)),
+                    int(float((real_sizelist[0] + width) / 2 + offset_x)),
+                    int(float((real_sizelist[1] + height) / 2 + offset_y))
                 )
             else:
                 frame['result_box'] = (
-                    int((real_sizelist[0] - width) / 2 + offset_x),
-                    int((real_sizelist[1] - height) / 2 - offset_y),
-                    int((real_sizelist[0] + width) / 2 + offset_x),
-                    int((real_sizelist[1] + height) / 2 - offset_y)
+                    int(float((real_sizelist[0] - width) / 2 + offset_x)),
+                    int(float((real_sizelist[1] - height) / 2 - offset_y)),
+                    int(float((real_sizelist[0] + width) / 2 + offset_x)),
+                    int(float((real_sizelist[1] + height) / 2 - offset_y))
                 )
         return frames
 
@@ -77,12 +77,12 @@ def frames_from_data(filename, ext):
         data = json.load(json_data)
         frames = {}
         for f in data['frames']:
-            x = int(f["frame"]["x"])
-            y = int(f["frame"]["y"])
-            w = int(f["frame"]["h"] if f['rotated'] else f["frame"]["w"])
-            h = int(f["frame"]["w"] if f['rotated'] else f["frame"]["h"])
-            real_w = int(f["sourceSize"]["h"] if f['rotated'] else f["sourceSize"]["w"])
-            real_h = int(f["sourceSize"]["w"] if f['rotated'] else f["sourceSize"]["h"])
+            x = int(float(f["frame"]["x"]))
+            y = int(float(f["frame"]["y"]))
+            w = int(float(f["frame"]["h"] if f['rotated'] else f["frame"]["w"]))
+            h = int(float(f["frame"]["w"] if f['rotated'] else f["frame"]["h"]))
+            real_w = int(float(f["sourceSize"]["h"] if f['rotated'] else f["sourceSize"]["w"]))
+            real_h = int(float(f["sourceSize"]["w"] if f['rotated'] else f["sourceSize"]["h"]))
             d = {
                 'box': (
                     x,
