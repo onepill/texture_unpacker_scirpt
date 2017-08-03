@@ -132,7 +132,6 @@ def gen_png_from_data(filename, ext):
         result_image.save(outfile)
 
 
-
 def endWith(s,*endstring):
     array = map(s.endswith,endstring)
     if True in array:
@@ -159,13 +158,22 @@ def get_file_list(path):
     return all_files
 
 
-# Use like this: python unpacker.py [Image Path] [Stuff:plist or json]
+def get_sources_file(filename):
+    data_filename = filename + ext
+    png_filename = filename + '.png'
+    if os.path.exists(data_filename) and os.path.exists(png_filename):
+        gen_png_from_data(filename, ext)
+    else:
+        print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
+
+
+# Use like this: python unpacker.py [Image Path or Image Name(but no suffix)] [Type:plist or json]
 if __name__ == '__main__':
-    if len(sys.argv) <= 2:
+    if len(sys.argv) <= 1:
         print("You must pass filename as the first parameter!")
         exit(1)
     # filename = sys.argv[1]
-    path = sys.argv[1]
+    path_or_name = sys.argv[1]
     ext = '.plist'
     if len(sys.argv) < 3:
         print("No data format passed, assuming .plist")
@@ -177,11 +185,10 @@ if __name__ == '__main__':
     else:
         print("Wrong data format passed '" + sys.argv[2] + "'!")
         exit(1)
-    files = get_file_list(path)
-    for file0 in files:
-        data_filename = file0 + ext
-        png_filename = file0 + '.png'
-        if os.path.exists(data_filename) and os.path.exists(png_filename):
-            gen_png_from_data(file0, ext)
-        else:
-            print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
+    # supports multiple file conversions
+    if os.path.isdir(path_or_name):
+        files = get_file_list(path_or_name)
+        for file0 in files:
+            get_sources_file(file0)
+    else:
+        get_sources_file(path_or_name)
