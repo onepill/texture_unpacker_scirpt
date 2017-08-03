@@ -132,11 +132,48 @@ def gen_png_from_data(filename, ext):
         result_image.save(outfile)
 
 
+def endWith(s,*endstring):
+    array = map(s.endswith,endstring)
+    if True in array:
+        return True
+    else:
+        return False
+
+
+# Get the all files & directories in the specified directory (path).   
+def get_file_list(path):
+    current_files = os.listdir(path)
+    all_files = []  
+    for file_name in current_files:
+        full_file_name = os.path.join(path, file_name)
+        if endWith(full_file_name,'.plist'):
+            full_file_name = full_file_name.replace('.plist','')
+            all_files.append(full_file_name)
+        if endWith(full_file_name,'.json'):
+            full_file_name = full_file_name.replace('.json','')
+            all_files.append(full_file_name)
+        if os.path.isdir(full_file_name):
+            next_level_files = get_recursive_file_list(full_file_name)
+            all_files.extend(next_level_files)
+    return all_files
+
+
+def get_sources_file(filename):
+    data_filename = filename + ext
+    png_filename = filename + '.png'
+    if os.path.exists(data_filename) and os.path.exists(png_filename):
+        gen_png_from_data(filename, ext)
+    else:
+        print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
+
+
+# Use like this: python unpacker.py [Image Path or Image Name(but no suffix)] [Type:plist or json]
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("You must pass filename as the first parameter!")
         exit(1)
-    filename = sys.argv[1]
+    # filename = sys.argv[1]
+    path_or_name = sys.argv[1]
     ext = '.plist'
     if len(sys.argv) < 3:
         print("No data format passed, assuming .plist")
@@ -148,9 +185,10 @@ if __name__ == '__main__':
     else:
         print("Wrong data format passed '" + sys.argv[2] + "'!")
         exit(1)
-    data_filename = filename + ext
-    png_filename = filename + '.png'
-    if os.path.exists(data_filename) and os.path.exists(png_filename):
-        gen_png_from_data(filename, ext)
+    # supports multiple file conversions
+    if os.path.isdir(path_or_name):
+        files = get_file_list(path_or_name)
+        for file0 in files:
+            get_sources_file(file0)
     else:
-        print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
+        get_sources_file(path_or_name)
